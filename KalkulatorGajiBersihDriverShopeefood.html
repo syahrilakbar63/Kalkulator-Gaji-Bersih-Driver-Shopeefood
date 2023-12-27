@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Gaji Bersih Driver Shopeefood</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #343a40; /* Dark background color */
+            color: #fff; /* Light text color */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-label {
+            font-weight: bold;
+            color: #fff; /* Light text color */
+        }
+        .form-control {
+            margin-bottom: 10px;
+            background-color: #fff; /* Light background color */
+            color: #343a40; /* Dark text color */
+        }
+        .btn-primary {
+            width: 100%;
+            background-color: #007bff; /* Primary color */
+            border-color: #007bff; /* Primary color */
+        }
+        .btn-primary:hover {
+            background-color: #0069d9; /* Darker primary color on hover */
+            border-color: #0062cc; /* Darker primary color on hover */
+        }
+        .mt-3 {
+            margin-top: 15px;
+        }
+        .mb-3 {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@17.0.2/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.15.8/babel.min.js"></script>
+
+    <script type="text/babel">
+        function formatCurrency(amount) {
+            const formatter = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR'
+            });
+            return formatter.format(amount);
+        }
+
+        function SalaryCalculator() {
+            const [income, setIncome] = React.useState('');
+            const [tip, setTip] = React.useState('');
+            const [minesSaldo, setMinesSaldo] = React.useState('');
+            const [expenses, setExpenses] = React.useState([]);
+            const [netSalary, setNetSalary] = React.useState('');
+            const [lossAmount, setLossAmount] = React.useState('');
+
+            const handleExpenseChange = (index, name, value) => {
+                const updatedExpenses = [...expenses];
+                updatedExpenses[index] = { name, value };
+                setExpenses(updatedExpenses);
+            };
+
+            const formatExpenseValue = (value) => {
+                const formattedValue = value.replace(/[^\d.-]/g, '');
+                return formatCurrency(formattedValue);
+            };
+
+            const calculateNetSalary = () => {
+                const totalExpenses = expenses.reduce((acc, expense) => acc + Number(expense.value), 0);
+                const netSalary = income - totalExpenses - Number(minesSaldo) + Number(tip);
+                setNetSalary(netSalary);
+                if (netSalary < 0) {
+                    setLossAmount(Math.abs(netSalary));
+                } else {
+                    setLossAmount('');
+                }
+            };
+
+            const addExpenseInput = () => {
+                setExpenses([...expenses, { name: '', value: '' }]);
+                setTimeout(() => {
+                    const expenseInputs = document.querySelectorAll('.expense-input');
+                    const lastExpenseInput = expenseInputs[expenseInputs.length - 1];
+                    lastExpenseInput.focus();
+                }, 0);
+            };
+
+            const removeExpenseInput = (index) => {
+                const updatedExpenses = [...expenses];
+                updatedExpenses.splice(index, 1);
+                setExpenses(updatedExpenses);
+            };
+
+            return (
+                <div className="container">
+                    <h1 className="text-center">Kalkulator Gaji Bersih Driver Shopeefood</h1>
+                    
+                    <div className="mb-3"></div>
+                    
+                    <div className="mb-3">
+                        <label htmlFor="incomeInput" className="form-label">Pendapatan dari Shopeefood:</label>
+                        <div className="input-group">
+                            <input type="number" className="form-control" id="incomeInput" placeholder="Masukkan pendapatan" value={income} onChange={(e) => setIncome(e.target.value)} />
+                        </div>
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="tipInput" className="form-label">Tip dari Pelanggan:</label>
+                        <div className="input-group">
+                            <input type="number" className="form-control" id="tipInput" placeholder="Masukkan tip dari pelanggan" value={tip} onChange={(e) => setTip(e.target.value)} />
+                        </div>
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="minesSaldoInput" className="form-label">Jumlah Mines Saldo:</label>
+                        <div className="input-group">
+                            <input type="number" className="form-control" id="minesSaldoInput" placeholder="Masukkan jumlah mines saldo" value={minesSaldo} onChange={(e) => setMinesSaldo(e.target.value)} />
+                        </div>
+                    </div>
+                    {expenses.map((expense, index) => (
+                        <div className="mb-3" key={index}>
+                            <label htmlFor={`expenseNameInput${index}`} className="form-label">Nama Pengeluaran {index + 1}:</label>
+                            <div className="input-group">
+                                <input type="text" className="form-control expense-input" id={`expenseNameInput${index}`} placeholder={`Masukkan nama pengeluaran ${index + 1}`} value={expense.name} onChange={(e) => handleExpenseChange(index, e.target.value, expense.value)} />
+                            </div>
+                            <label htmlFor={`expenseValueInput${index}`} className="form-label">Jumlah Pengeluaran {index + 1}:</label>
+                            <div className="input-group">
+                                <input type="number" className="form-control" id={`expenseValueInput${index}`} placeholder={`Masukkan jumlah pengeluaran ${index + 1}`} value={expense.value} onChange={(e) => handleExpenseChange(index, expense.name, e.target.value)} />
+                            </div>
+                            <button className="btn btn-danger" onClick={() => removeExpenseInput(index)}>Hapus Pengeluaran</button>
+                        </div>
+                    ))}
+                    <div className="mb-3">
+                        <button className="btn btn-primary" onClick={addExpenseInput}>Tambah Pengeluaran</button>
+                    </div>
+                    <div className="mb-3">
+                        <button className="btn btn-primary" onClick={calculateNetSalary}>Hitung Gaji Bersih</button>
+                    </div>
+                    <div className="mt-3">
+                        <label htmlFor="netSalaryOutput" className="form-label">Gaji Bersih:</label>
+                        <input type="text" className="form-control" id="netSalaryOutput" value={formatCurrency(netSalary)} readOnly />
+                    </div>
+                    {lossAmount > 0 && (
+                        <div className="mt-3">
+                            <p>Yah, Anda rugi sebesar {formatCurrency(lossAmount)}, semangat lagi kerjanya...</p>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+
+        ReactDOM.render(<SalaryCalculator />, document.getElementById('root'));
+    </script>
+</body>
+</html>
